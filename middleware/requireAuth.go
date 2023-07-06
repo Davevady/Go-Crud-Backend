@@ -17,7 +17,7 @@ func RequireAuth(c *gin.Context) {
 	// Get the cookie off req
 	tokenString, err := c.Cookie("Authorization")
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Anda belum login"})
 		return
 	}
 
@@ -32,19 +32,19 @@ func RequireAuth(c *gin.Context) {
 	})
 
 	if err != nil || !token.Valid {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token tidak valid"})
 		return
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token tidak valid"})
 		return
 	}
 
 	// Check the exp
 	if exp, ok := claims["exp"].(float64); ok && float64(time.Now().Unix()) > exp {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token kedaluwarsa"})
 		return
 	}
 
@@ -53,7 +53,13 @@ func RequireAuth(c *gin.Context) {
 	initializers.DB.First(&user, claims["sub"])
 
 	if user.ID == 0 {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User tidak ditemukan"})
+		return
+	}
+
+	// Check user's level
+	if user.Email != "dave@gmail." {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Anda tidak memiliki akses yang cukup"})
 		return
 	}
 
