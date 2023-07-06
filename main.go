@@ -27,6 +27,7 @@ func main() {
 	r.PUT("/posts/:id", controllers.PostsUpdate)
 	r.DELETE("/posts/:id", controllers.PostDelete)
 
+	r.Use(middleware.RequireAuth)
 	r.POST("/news", controllers.NewsCreate)
 	r.GET("/newsData", controllers.NewsIndex)
 	r.GET("/newsShow/:id", controllers.NewsShow)

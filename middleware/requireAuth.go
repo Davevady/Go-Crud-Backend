@@ -2,14 +2,15 @@ package middleware
 
 import (
 	"fmt"
-	"go-crud/initializers"
-	"go-crud/models"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"go-crud/initializers"
+	"go-crud/models"
+
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func RequireAuth(c *gin.Context) {
@@ -47,17 +48,17 @@ func RequireAuth(c *gin.Context) {
 		return
 	}
 
-	// Find the news with token sub
-	var news models.News
-	initializers.DB.First(&news, claims["sub"])
+	// Find the user with token sub
+	var user models.User
+	initializers.DB.First(&user, claims["sub"])
 
-	if news.ID == 0 {
+	if user.ID == 0 {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	// Attach to req
-	c.Set("news", news)
+	c.Set("user", user)
 
 	// Continue
 	c.Next()
