@@ -52,10 +52,17 @@ func RequireAuth(c *gin.Context) {
 	var user models.User
 	initializers.DB.First(&user, claims["sub"])
 
+	var post models.Post
+	initializers.DB.First(&post, claims["sub"])
+
+	var event models.Event
+	initializers.DB.First(&event, claims["sub"])
+
 	if user.ID == 0 {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
+
 
 	// Attach to req
 	c.Set("user", user)

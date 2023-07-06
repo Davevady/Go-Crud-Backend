@@ -11,6 +11,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
+	initializers.SyncDatabase()
 }
 func main() {
 	r := gin.Default()
@@ -19,6 +20,7 @@ func main() {
 	r.POST("/login", controllers.LogIn)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 	
+	r.Use(middleware.RequireAuth)
 	r.POST("/posts", controllers.PostsCreate)
 	r.PUT("/posts/:id", controllers.PostsUpdate)
 	r.GET("/posts", controllers.PostsIndex)
