@@ -3,6 +3,7 @@ package main
 import (
 	"go-crud/controllers"
 	"go-crud/initializers"
+	"go-crud/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,11 +11,15 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDB()
+	initializers.SyncDatabase()
 }
 
 func main() {
 	r := gin.Default()
-	// r.GET("/", controllers.PostsCreate)
+
+	r.POST("/signup", controllers.Signup)
+	r.POST("/login", controllers.Login)
+	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 
 	r.POST("/posts", controllers.PostsCreate)
 	r.GET("/posts", controllers.PostsIndex)
